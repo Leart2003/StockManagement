@@ -3,12 +3,9 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+<h2 class="text-center mb-5">Lista e produkteve</h2>
 
-
-
-<h2 class="text-center" mb-5>Lista e produkteve</h2>
-
-<div class="row justify-content-center">
+<div class="row justify-content-center mb-3">
     <div class="col-auto">
         <a class="btn btn-primary" asp-controller="Produkt" asp-action="Create">Krijo produkt të ri</a>
     </div>
@@ -17,12 +14,7 @@
     </div>
 </div>
 
-
-
-
-
-<table class="table">
-
+<table id="produktetTable" class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>ID</th>
@@ -30,56 +22,55 @@
             <th>Brand</th>
             <th>Price</th>
             <th>Image</th>
-            <th>operacionet</th>
-           
-           
+            <th>Operacionet</th>
         </tr>
-
     </thead>
     <tbody>
         @foreach (var Produkt in Model)
         {
-
-
-            @* img src = "Produktet/@Produkt.ImageFileName" *@
             <tr>
                 <td>@Produkt.Id</td>
                 <td>@Produkt.Name</td>
-                
                 <td>@Produkt.Category</td>
+                <td>@Produkt.Price.ToString("C")</td>
                 <td>
-                    @Produkt.Price.ToString("C")
-
+                    <img src="~/produktet/@Produkt.ImageFileName" width="100" />
                 </td>
-                <td><img src="~/produktet/@Produkt.ImageFileName" width="100" /> </td>
-                
-              
-
-                <td style=" white-space:nowrap">
+                <td style="white-space:nowrap">
                     <a class="btn btn-outline-primary btn-sm" asp-controller="Produkt" asp-action="Edit" asp-route-id="@Produkt.Id">
                         Edit
-
                     </a>
-
-                    <a class="btn btn-danger btn-sm" asp-controller="Produkt" asp-action="Delete" asp-route-id="@Produkt.Id" onclick="return confirm('Deshironi ta fshinini këtë produkt?' )"
-                    role="button">
+                    <a class="btn btn-danger btn-sm" asp-controller="Produkt" asp-action="Delete" asp-route-id="@Produkt.Id"
+                       onclick="return confirm('Deshironi ta fshinini këtë produkt?')" role="button">
                         Delete
                     </a>
-
                     <a asp-controller="Produkt" asp-action="Details" asp-route-id="@Produkt.Id">
                         Details
-
-
                     </a>
-                    
-           
-
-
-
                 </td>
             </tr>
         }
-
     </tbody>
+</table>
 
-</table> 
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" />
+}
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#produktetTable').DataTable({
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                order: [[0, 'asc']], // sort by ID ascending by default
+                columnDefs: [
+                    { orderable: false, targets: [4, 5] } // disable sort on Image and Actions columns
+                ]
+            });
+        });
+    </script>
+}
