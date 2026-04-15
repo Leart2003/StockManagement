@@ -49,11 +49,6 @@ This project was developed as part of a university diploma project to demonstrat
 * Database design and management
 * Clean architecture and MVC pattern
 
-### 📌 Future Improvements
 
-* Admin dashboard with analytics
-* Advanced search and filtering
-* API integration (RESTful services)
-* React frontend integration
 
 
