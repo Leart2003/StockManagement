@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿Design this admin layot please: @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> userManager
 <!DOCTYPE html>
 <html lang="en">
@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     @RenderSection("Styles", required: false)
-
     <style>
         body {
             display: flex;
@@ -52,22 +51,19 @@
         <a asp-controller="Produkt" asp-action="Index">🏠 Home</a>
         <a asp-controller="Produkt" asp-action="Menaxhment">🛍 Products</a>
         <a asp-controller="Order" asp-action="AllOrders">📦Të gjitha porositë</a>
-        <a asp-controller="Produkt" asp-action="PrivateAdmin" >👤 Users</a>
+        <a asp-controller="Produkt" asp-action="PrivateAdmin">👤 Users</a>
         <a style="color:white;"><partial name="_LoginPartial" />🚪 Logout</a>
-        
-    </div>
 
+    </div>
     <!-- Main Content -->
     <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-
