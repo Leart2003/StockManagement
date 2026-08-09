@@ -77,7 +77,7 @@ namespace Punim_Diplome.Controllers
         //}
 
         [HttpPost]
-        [ValidateAntiForgeryToken] // You can remove IgnoreAntiforgeryToken now
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CancelOrder(int id)
         {
             var userID = _userManager.GetUserId(User);
