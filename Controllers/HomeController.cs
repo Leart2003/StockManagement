@@ -16,7 +16,19 @@ namespace Punim_Diplome.Controllers
             _logger = logger;
             this.context = context;
         }
-
+        /// <summary>
+        /// Displays the list of products, optionally filtered by brand and/or a search term.
+        /// </summary>
+        /// <param name="searchString">
+        /// Text typed by the user to search for in the product name. Optional — if null or empty, no name filter is applied.
+        /// </param>
+        /// <param name="brand">
+        /// The brand selected by the user to filter by. Optional — if null or empty, products from all brands are shown.
+        /// </param>
+        /// <returns>
+        /// The Index view, populated with the filtered product list, the selected filters,
+        /// and the list of available brands (for the filter dropdown).
+        /// </returns>
         public async Task<IActionResult> IndexAsync(String searchString, String brand)
         {
             var produktetquery = context.Produktet.OrderByDescending(p => p.Id).ToList();
