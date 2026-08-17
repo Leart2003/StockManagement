@@ -25,6 +25,13 @@ namespace Punim_Diplome.Controllers
             _userManager = userManager;
 
         }
+        /// <summary>
+        /// Displays the order history for the currently logged-in user.
+        /// </summary>
+        /// <returns>
+        /// The Index view, populated with the list of orders (including product details)
+        /// belonging to the current user.
+        /// </returns>
         public async Task<IActionResult> Index()
 
         {
@@ -42,6 +49,14 @@ namespace Punim_Diplome.Controllers
             return View(orders);
         }
 
+        /// <summary>
+        /// Cancels (deletes) a specific order belonging to the currently logged-in user.
+        /// </summary>
+        /// <param name="id">The Id of the order to cancel.</param>
+        /// <returns>
+        /// Redirects back to the Index (order history) page if successful.
+        /// Returns a 404 Not Found if the order doesn't exist or doesn't belong to the current user.
+        /// </returns>
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -64,7 +79,13 @@ namespace Punim_Diplome.Controllers
         }
 
 
-
+        /// <summary>
+        /// Displays a list of ALL orders in the system, across all users.
+        /// Intended for admin use only — shows each order along with its product and the user who placed it.
+        /// </summary>
+        /// <returns>
+        /// The AllOrders view, populated with every order (including related product and user data).
+        /// </returns>
 
         [Authorize(Policy = "AdminEmail")]
         public async Task<IActionResult> AllOrders()
@@ -79,6 +100,13 @@ namespace Punim_Diplome.Controllers
           
             return View(oders);
         }
+        /// <summary>
+        /// Displays a form for the current user to place an order for a specific product.
+        /// </summary>
+        /// <param name="productId">The Id of the product the user wants to order.</param>
+        /// <returns>
+        /// The OrderForm view, pre-filled with the product info and current user's Id.
+        /// </returns>
         [HttpGet]
         public async Task< IActionResult> OrderForm(int productId)
         {
@@ -111,6 +139,16 @@ namespace Punim_Diplome.Controllers
             return RedirectToAction("Index", "Order"); // Or a confirmation page
         }
 
+        /// <summary>
+        /// Updates the status of a specific order (e.g. to "Shipped", "Cancelled", "Delivered").
+        /// Intended for admin use, as part of managing all orders.
+        /// </summary>
+        /// <param name="id">The Id of the order to update.</param>
+        /// <param name="status">The new status value to set on the order.</param>
+        /// <returns>
+        /// Redirects to the AllOrders page after updating.
+        /// Returns a 404 Not Found if no order matches the given id.
+        /// </returns>
         public async Task<IActionResult> UpdateStatus(int id, string status)
         {
             var order = await _context.OrderProducts.FindAsync(id);
