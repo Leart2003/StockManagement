@@ -41,7 +41,17 @@ namespace Punim_Diplome.Controllers
         }
 
 
-        // GET: ProduktController
+        /// <summary>
+        /// Displays the list of products, optionally filtered by brand, name search, and/or category.
+        /// Also builds the lists of available brands and categories for filter dropdowns.
+        /// </summary>
+        /// <param name="searchString">Text to search for in the product name. Optional.</param>
+        /// <param name="brand">The brand to filter by. Optional.</param>
+        /// <param name="selectedCategory">The category to filter by. Optional.</param>
+        /// <returns>
+        /// The Index view, populated with the filtered product list, the selected filters,
+        /// and the available brands/categories (for filter dropdowns).
+        /// </returns>
 
         public async Task<IActionResult> Index(String searchString, String brand, String selectedCategory)
         {
@@ -89,6 +99,15 @@ namespace Punim_Diplome.Controllers
             return View(viewModel);
         }
 
+        /// <summary>
+        /// Displays the admin product management page, with an optional search filter by name.
+        /// </summary>
+        /// <param name="searchBar">
+        /// Text typed by the admin to search for in the product name. Optional — if null or empty, all products are shown.
+        /// </param>
+        /// <returns>
+        /// The Menaxhment view, populated with all products (or the filtered subset, if searched).
+        /// </returns>
         [Authorize(Policy = "AdminEmail")]
 
         public async Task<IActionResult> Menaxhment(String searchBar)
@@ -116,7 +135,16 @@ namespace Punim_Diplome.Controllers
             return View();
         }
 
-
+        /// <summary>
+        /// Creates a new product, including uploading and saving its image file.
+        /// Intended for admin use only.
+        /// </summary>
+        /// <param name="produktDto">
+        /// The new product's data submitted from the create form, including the image file to upload.
+        /// </param>
+        /// <returns>
+        /// Redirects to the Index page after creating the product.
+        /// </returns>
         [Authorize(Policy = "AdminEmail")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -158,6 +186,14 @@ namespace Punim_Diplome.Controllers
         }
 
 
+        /// <summary>
+        /// Displays the edit form for a specific product, pre-filled with its current values.
+        /// </summary>
+        /// <param name="id">The Id of the product to edit.</param>
+        /// <returns>
+        /// The Edit view, populated with a DTO of the product's current data.
+        /// Redirects to Index if no product matches the given id.
+        /// </returns>
         [HttpGet]
 
         public IActionResult Edit(int id)
@@ -192,7 +228,17 @@ namespace Punim_Diplome.Controllers
             return View(produktDto);
 
         }
-
+        /// <summary>
+        /// Updates an existing product's details, and optionally replaces its image.
+        /// </summary>
+        /// <param name="id">The Id of the product being edited.</param>
+        /// <param name="produktDto">
+        /// The updated product data submitted from the edit form (including an optional new image file).
+        /// </param>
+        /// <returns>
+        /// Redirects to the Index page after saving.
+        /// Returns 404 Not Found if no product matches the given id.
+        /// </returns>
         [HttpPost]
         public async Task<IActionResult> Edit(int id, ProduktDto produktDto)
         {
@@ -263,7 +309,7 @@ namespace Punim_Diplome.Controllers
             context.Entry(produkti).Property(x => x.Procesor).IsModified = true;
             context.Entry(produkti).Property(x => x.Category).IsModified = true;
 
-            // Save changes to the database
+          
             var changes = await context.SaveChangesAsync();
             Console.WriteLine($"Rows affected: {changes}");
 
@@ -274,7 +320,13 @@ namespace Punim_Diplome.Controllers
 
 
 
-
+        /// <summary>
+        /// Deletes a product from the database, including its associated image file on disk.
+        /// </summary>
+        /// <param name="id">The Id of the product to delete.</param>
+        /// <returns>
+        /// Redirects to the Index page after deleting (or if the product isn't found).
+        /// </returns>
 
         [HttpGet("delete/{id}")]
 
@@ -302,7 +354,14 @@ namespace Punim_Diplome.Controllers
 
         }
 
-
+        /// <summary>
+        /// Deletes a product from the database, including its associated image file on disk.
+        /// Intended for admin use only.
+        /// </summary>
+        /// <param name="id">The Id of the product to delete.</param>
+        /// <returns>
+        /// Redirects to the Index page whether the deletion succeeds or the product/id is invalid.
+        /// </returns>
         [Authorize(Policy = "AdminEmail")]
         [HttpPost("delete/{id}")]
         public async Task<IActionResult> DeleteConfirmation(int? id)
@@ -331,7 +390,17 @@ namespace Punim_Diplome.Controllers
         }
 
 
-
+        /// <summary>
+        /// Displays the details of a single product, along with all of its comments (and the user who wrote each comment).
+        /// </summary>
+        /// <param name="id">The Id of the product to display. Nullable because the route might not provide one.</param>
+        /// <param name="koment">
+        /// A Koment (comment) object — likely bound from a comment submission form on this same page.
+        /// </param>
+        /// <returns>
+        /// The Details view, populated with the product and its comments.
+        /// Returns 404 Not Found if no product matches the given id.
+        /// </returns>
         public async Task<IActionResult> Details(int? id, Koment koment)
         {
 
@@ -353,6 +422,12 @@ namespace Punim_Diplome.Controllers
 
             return View(viewModel);
         }
+        /// <summary>
+        /// Add a comment
+        /// </summary>
+        /// <param name="produktId">The id of the product that the comment will be added</param>
+        /// <param name="content"></param>
+        /// <returns>Returns comment added succefullu, returns to detail action</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddComment(int produktId, string content)
@@ -391,7 +466,11 @@ namespace Punim_Diplome.Controllers
             // Redirect back to the details page for the product
             return RedirectToAction("Details", new { id = produktId });
         }
-
+        /// <summary>
+        /// Takes userId of the user, delets the comment of the user
+        /// </summary>
+        /// <param name="commentId">the id of the comment to be deleted</param>
+        /// <returns>If user is authenticated and user deletes his own comment returns comment deleted succesfully</returns>
         public async Task<IActionResult> DeleteComment(int commentId)
         {
             var comment = await context.Comments
@@ -422,7 +501,10 @@ namespace Punim_Diplome.Controllers
             return RedirectToAction("Details", "Produkt", new { id = comment.ProduktId });
         }
 
-
+        /// <summary>
+        /// Shows all user in admin view
+        /// </summary>
+        /// <returns>Returns all users</returns>
 
         public async Task<IActionResult> PrivateAdmin()
         {
@@ -430,7 +512,11 @@ namespace Punim_Diplome.Controllers
 
             return View(AllUser);
         }
-
+        /// <summary>
+        /// Deletes a user
+        /// </summary>
+        /// <param name="id">The id of the user to be deleted</param>
+        /// <returns>Returns to admin panel</returns>
         [HttpGet]
         public async Task<IActionResult> DeleteUser(string id)
         {
@@ -442,7 +528,10 @@ namespace Punim_Diplome.Controllers
             await _userManager.DeleteAsync(user);
             return RedirectToAction("PrivateAdmin");
         }
-
+        /// <summary>
+        /// Export all product into .xls file
+        /// </summary>
+        /// <returns>Returns an excel file</returns>
         public async Task<IActionResult> ExportToExcel()
         {
             
