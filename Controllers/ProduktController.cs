@@ -295,23 +295,11 @@ namespace Punim_Diplome.Controllers
                 produkti.ImageFileName = newFileName;
             }
 
-            // Mark entity as modified and explicitly set each field as modified
-            context.Entry(produkti).State = EntityState.Modified;
-            context.Entry(produkti).Property(x => x.Name).IsModified = true;
-            context.Entry(produkti).Property(x => x.Brand).IsModified = true;
-            context.Entry(produkti).Property(x => x.Description).IsModified = true;
-            context.Entry(produkti).Property(x => x.Ram).IsModified = true;
-            context.Entry(produkti).Property(x => x.Price).IsModified = true;
-            context.Entry(produkti).Property(x => x.Date).IsModified = true;
-            context.Entry(produkti).Property(x => x.Storage).IsModified = true;
-            context.Entry(produkti).Property(x => x.Storagetype).IsModified = true;
-            context.Entry(produkti).Property(x => x.ScreenInch).IsModified = true;
-            context.Entry(produkti).Property(x => x.Procesor).IsModified = true;
-            context.Entry(produkti).Property(x => x.Category).IsModified = true;
+        
 
           
-            var changes = await context.SaveChangesAsync();
-            Console.WriteLine($"Rows affected: {changes}");
+            await context.SaveChangesAsync();
+         
 
             return RedirectToAction("Index", "Produkt");
         }
