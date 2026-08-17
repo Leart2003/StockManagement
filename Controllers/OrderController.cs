@@ -42,39 +42,6 @@ namespace Punim_Diplome.Controllers
             return View(orders);
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> OrderNow(int id)
-        //{
-        //    var userID = _userManager.GetUserId(User);
-
-        //    if (userID == null)
-        //    {
-        //        return Unauthorized();
-        //    }
-
-
-        //    var product = await _context.Produktet.FindAsync(id);
-
-        //    if (product == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var order = new OrderProduct
-        //    {
-        //        UserId = userID,
-        //        ProductId = id,
-        //        OrderDate = DateTime.Now
-
-        //    };
-        //    await _context.OrderProducts.AddAsync(order);
-        //    await _context.SaveChangesAsync();
-
-
-
-        //    return RedirectToAction("Index");
-
-        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -110,8 +77,6 @@ namespace Punim_Diplome.Controllers
                  .ToListAsync();
 
           
-           
-
             return View(oders);
         }
         [HttpGet]

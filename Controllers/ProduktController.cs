@@ -289,10 +289,7 @@ namespace Punim_Diplome.Controllers
 
             }
 
-
-
-
-            if (System.IO.File.Exists(ImageFullPath))
+             if (System.IO.File.Exists(ImageFullPath))
             {
                 System.IO.File.Delete(ImageFullPath);
             }
