@@ -37,6 +37,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\PunimDiplome.Application\PunimDiplome.Application.csproj" />
 	  <ProjectReference Include="..\PunimDiplome.Domain\PunimDiplome.Domain.csproj" />
 	  <ProjectReference Include="..\PunimDiplome.Infrastructure\PunimDiplome.Infrastructure.csproj" />
 	</ItemGroup>
