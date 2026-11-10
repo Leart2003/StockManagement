@@ -66,3 +66,4 @@
 *.html linguist-detectable=false
 *.css linguist-detectable=false
 *.js linguist-detectable=false
+*.cs linguist-language="ASP.NET Core"
