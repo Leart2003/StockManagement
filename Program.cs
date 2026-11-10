@@ -75,7 +75,7 @@ namespace Punim_Diplome
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Produkt}/{action=Index}/{id?}");
+                pattern: "{controller=Home}/{action=Index}/{id?}");
             app.MapRazorPages();
 
             app.Run();
