@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@model Punim_Diplome.Models.ProduktDetailsVM
+@model PunimDiplome.Domain.Entities.ProduktDetailsVM
 @inject UserManager<IdentityUser> userManager
 
 @{
@@ -268,7 +268,7 @@
                 </div>
                 <div class="spec-item">
                     <span class="spec-label"><i class="bi bi-display"></i> Screen Size</span>
-                    <span class="spec-value">@Model.Produkt?.ScreenInch"</span>
+                    <span class="spec-value">@Model.Produkt?.ScreenInch</span>
                 </div>
                 <div class="spec-item">
                     <span class="spec-label"><i class="bi bi-calendar-event"></i> Manufactured Date</span>

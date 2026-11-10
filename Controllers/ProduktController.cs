@@ -35,10 +35,18 @@ public class ProduktController : Controller
         if (produkt == null)
             return NotFound();
 
+        var komentDtos = await _komentService.GetForProduktAsync(id.Value);
         var viewModel = new ProduktDetailsVM
         {
             Produkt = produkt,
-            Koments = await _komentService.GetForProduktAsync(id.Value)
+            Koments = komentDtos.Select(dto => new Koment
+            {
+                Id = dto.Id,
+                Content = dto.Content,
+                IdentityUserId = dto.IdentityUserId,
+                ProduktId = dto.ProduktId,
+                User = dto.UserName is null ? null : new Microsoft.AspNetCore.Identity.IdentityUser { UserName = dto.UserName }
+            }).ToList()
         };
 
         return View(viewModel);

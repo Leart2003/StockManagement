@@ -6,6 +6,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>aspnet-Punim_Diplome-69cd5e86-b271-460d-955f-8a66ee69d5ca</UserSecretsId>
 		<RootNamespace>Punim_Diplome</RootNamespace>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -28,7 +30,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
 		<PackageReference Include="NuGet.Packaging" Version="6.12.5" />
 		<PackageReference Include="NuGet.Protocol" Version="6.12.5" />
-		<PackageReference Include="System.Drawing.Common" Version="5.0.3" />
+		<PackageReference Include="System.Drawing.Common" Version="10.0.0" />
 		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
 	</ItemGroup>
 

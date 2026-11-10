@@ -1,4 +1,6 @@
-﻿namespace PunimDiplome.Domain.Entities;
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace PunimDiplome.Domain.Entities;
 
 public class Koment
 {
@@ -7,4 +9,5 @@ public class Koment
     public string IdentityUserId { get; set; } = string.Empty;
     public int? ProduktId { get; set; }
     public Produkt? Produkt { get; set; }
+    public IdentityUser? User { get; set; }
 }
