@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PunimDiplome.Application\PunimDiplome.Application.csproj" />
     <ProjectReference Include="..\PunimDiplome.Domain\PunimDiplome.Domain.csproj" />
   </ItemGroup>
 
