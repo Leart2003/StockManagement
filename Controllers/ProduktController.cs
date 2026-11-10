@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.Differencing;
 using Microsoft.EntityFrameworkCore;
 using Punim_Diplome.Data;
-using Punim_Diplome.Models;
+using PunimDiplome.Domain.Entities;
 using System;
 using System.Diagnostics;
 using System.Runtime.Intrinsics.Arm;
