@@ -1,583 +1,156 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Differencing;
-using Microsoft.EntityFrameworkCore;
-using Punim_Diplome.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using PunimDiplome.Application.Dtos;
+using PunimDiplome.Application.Interfaces;
 using PunimDiplome.Domain.Entities;
-using System;
-using System.Diagnostics;
-using System.Runtime.Intrinsics.Arm;
-using Punim_Diplome.Data.Services;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
-using System.IO;
-using OfficeOpenXml;
 
+namespace Punim_Diplome.Controllers;
 
-
-namespace Punim_Diplome.Controllers
+public class ProduktController : Controller
 {
+    private readonly IProduktService _produktService;
 
-    public class ProduktController : Controller
+    public ProduktController(IProduktService produktService)
     {
-        private readonly ApplicationDbContext context;
-        private readonly IWebHostEnvironment environment;
-        private readonly IKomentService _commentService;
-        private readonly IProduktService _produktService;
-        private readonly UserManager<IdentityUser> _userManager;
-
-
-
-
-        public ProduktController(ApplicationDbContext context, IWebHostEnvironment environment, IKomentService komentService, IProduktService produktService, UserManager<IdentityUser> userManager)
-        {
-            this.context = context;
-            this.environment = environment;
-            this._commentService = komentService;
-            this._produktService = produktService;
-            _userManager = userManager;
-
-        }
-
-
-        /// <summary>
-        /// Displays the list of products, optionally filtered by brand, name search, and/or category.
-        /// Also builds the lists of available brands and categories for filter dropdowns.
-        /// </summary>
-        /// <param name="searchString">Text to search for in the product name. Optional.</param>
-        /// <param name="brand">The brand to filter by. Optional.</param>
-        /// <param name="selectedCategory">The category to filter by. Optional.</param>
-        /// <returns>
-        /// The Index view, populated with the filtered product list, the selected filters,
-        /// and the available brands/categories (for filter dropdowns).
-        /// </returns>
-
-        public async Task<IActionResult> Index(String searchString, String brand, String selectedCategory)
-        {
-
-            var produktetQuery = context.Produktet.OrderByDescending(p => p.Id).AsQueryable();
-
-
-            if (!string.IsNullOrEmpty(brand))
-            {
-                produktetQuery = produktetQuery.Where(p => p.Brand == brand);
-            }
-            var availableBrands = await context.Produktet
-               .Select(p => p.Brand)
-               .Distinct()
-               .ToListAsync();
-
-            //SearchString
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                produktetQuery = produktetQuery.Where(p => p.Name!.Contains(searchString));
-            }
-
-            //Category
-            if (!string.IsNullOrEmpty(selectedCategory))
-            {
-                produktetQuery = produktetQuery.Where(p => p.Category!.Contains(selectedCategory));
-            }
-
-
-            var availableCategories = await context.Produktet
-                .Select(p => p.Category)
-                .Distinct()
-                .ToListAsync();
-
-            var viewModel = new ProductVM()
-            {
-                Products = await produktetQuery.ToListAsync(),
-                SearchString = searchString,
-                SelectedBrand = brand,
-                AvailableBrands = availableBrands,
-                SelectedCategory = selectedCategory,
-                AvailableCategories = availableCategories
-            };
-
-            return View(viewModel);
-        }
-
-        /// <summary>
-        /// Displays the admin product management page, with an optional search filter by name.
-        /// </summary>
-        /// <param name="searchBar">
-        /// Text typed by the admin to search for in the product name. Optional — if null or empty, all products are shown.
-        /// </param>
-        /// <returns>
-        /// The Menaxhment view, populated with all products (or the filtered subset, if searched).
-        /// </returns>
-        [Authorize(Policy = "AdminEmail")]
-
-        public async Task<IActionResult> Menaxhment(String searchBar)
-
-        {
-            var produktet = await context.Produktet.OrderByDescending(p => p.Id).ToListAsync();
-
-            if (produktet == null)
-            {
-                return NotFound();
-            }
-            if (!String.IsNullOrEmpty(searchBar))
-            {
-                produktet = produktet.Where(p => p.Name.ToUpper().Contains(searchBar.ToUpper())).ToList();
-            }
-            return View(produktet);
-        }
-
-
-        [Authorize(Policy = "AdminEmail")]
-        [HttpGet]
-        public IActionResult Create()
-        {
-
-            return View();
-        }
-
-        /// <summary>
-        /// Creates a new product, including uploading and saving its image file.
-        /// Intended for admin use only.
-        /// </summary>
-        /// <param name="produktDto">
-        /// The new product's data submitted from the create form, including the image file to upload.
-        /// </param>
-        /// <returns>
-        /// Redirects to the Index page after creating the product.
-        /// </returns>
-        [Authorize(Policy = "AdminEmail")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Brand,Description,Ram,Price,Date,Storage,Storagetype,ScreenInch,Procesor,Category,ImageFile")] ProduktDto produktDto)
-        {
-            if (produktDto.ImageFile != null)
-            {
-                string uploadDir = Path.Combine(environment.WebRootPath, "Produktet");
-                string fileName = produktDto.ImageFile.FileName;
-                string filePath = Path.Combine(uploadDir, fileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    produktDto.ImageFile.CopyTo(fileStream);
-                }
-                Produkt produkt = new Produkt()
-                {
-                    Id = produktDto.Id,
-                    Name = produktDto.Name,
-                    Brand = produktDto.Brand,
-                    Ram = produktDto.Ram,
-                    Price = produktDto.Price,
-                    Storage = produktDto.Storage,
-                    Storagetype = produktDto.Storagetype,
-                    ScreenInch = produktDto.ScreenInch,
-                    Procesor = produktDto.Procesor,
-                    Category = produktDto.Category,
-                    Date = produktDto.Date,
-                    Description = produktDto.Description,
-                    ImageFileName = fileName
-
-
-
-                };
-                context.Produktet.Add(produkt);
-                await context.SaveChangesAsync();
-            }
-
-            return RedirectToAction("Index", "Produkt");
-        }
-
-
-        /// <summary>
-        /// Displays the edit form for a specific product, pre-filled with its current values.
-        /// </summary>
-        /// <param name="id">The Id of the product to edit.</param>
-        /// <returns>
-        /// The Edit view, populated with a DTO of the product's current data.
-        /// Redirects to Index if no product matches the given id.
-        /// </returns>
-        [HttpGet]
-
-        public IActionResult Edit(int id)
-        {
-            var produkti = context.Produktet.Find(id);
-
-            if (produkti == null)
-            {
-                return RedirectToAction("Index", "Produkt");
-            }
-
-            var produktDto = new ProduktDto()
-            {
-                Id = produkti.Id,
-                Name = produkti.Name,
-                Brand = produkti.Brand,
-                Ram = produkti.Ram,
-                Description = produkti.Description,
-                Date = produkti.Date,
-                Price = produkti.Price,
-                Storage = produkti.Storage,
-                Procesor = produkti.Procesor,
-                ScreenInch = produkti.ScreenInch,
-                Storagetype = produkti.Storagetype
-
-
-
-            };
-
-            ViewData["ImageFileName"] = produkti.ImageFileName;
-            ViewData["Produkt.Id"] = produkti.Id;
-            return View(produktDto);
-
-        }
-        /// <summary>
-        /// Updates an existing product's details, and optionally replaces its image.
-        /// </summary>
-        /// <param name="id">The Id of the product being edited.</param>
-        /// <param name="produktDto">
-        /// The updated product data submitted from the edit form (including an optional new image file).
-        /// </param>
-        /// <returns>
-        /// Redirects to the Index page after saving.
-        /// Returns 404 Not Found if no product matches the given id.
-        /// </returns>
-        [HttpPost]
-        public async Task<IActionResult> Edit(int id, ProduktDto produktDto)
-        {
-            var produkti = context.Produktet.Find(id);
-            if (produkti == null)
-            {
-                return NotFound();
-            }
-
-            Console.WriteLine($"Found product: {produkti.Name}");
-
-            // Check if the model is valid
-            if (!ModelState.IsValid)
-            {
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    Console.WriteLine($"Validation Error: {error.ErrorMessage}");
-                }
-            }
-
-            // Update the fields with new values from the form
-            produkti.Name = produktDto.Name;
-            produkti.Brand = produktDto.Brand;
-            produkti.Description = produktDto.Description;
-            produkti.Ram = produktDto.Ram;
-            produkti.Price = produktDto.Price;
-            produkti.Date = produktDto.Date;
-            produkti.Storage = produktDto.Storage;
-            produkti.Storagetype = produktDto.Storagetype;
-            produkti.ScreenInch = produktDto.ScreenInch;
-            produkti.Procesor = produktDto.Procesor;
-            produkti.Category = produktDto.Category;
-
-            if (produktDto.ImageFile != null && produktDto.ImageFile.Length > 0)
-            {
-                string newFileName = Guid.NewGuid() + Path.GetExtension(produktDto.ImageFile.FileName);
-
-                string imageFullPath = Path.Combine(environment.WebRootPath, "Produktet", newFileName);
-
-                using (var stream = new FileStream(imageFullPath, FileMode.Create))
-                {
-                    await produktDto.ImageFile.CopyToAsync(stream);
-                }
-
-                if (!string.IsNullOrEmpty(produkti.ImageFileName))
-                {
-                    string oldImageFullPath = Path.Combine(environment.WebRootPath, "Produktet", produkti.ImageFileName);
-                    if (System.IO.File.Exists(oldImageFullPath))
-                    {
-                        System.IO.File.Delete(oldImageFullPath);
-                    }
-                }
-
-                produkti.ImageFileName = newFileName;
-            }
-
-        
-
-          
-            await context.SaveChangesAsync();
-         
-
-            return RedirectToAction("Index", "Produkt");
-        }
-
-
-
-
-
-        /// <summary>
-        /// Deletes a product from the database, including its associated image file on disk.
-        /// </summary>
-        /// <param name="id">The Id of the product to delete.</param>
-        /// <returns>
-        /// Redirects to the Index page after deleting (or if the product isn't found).
-        /// </returns>
-
-        [HttpGet("delete/{id}")]
-
-        public async Task<IActionResult> Delete(int? id)
-        {
-            var produkti = context.Produktet.Find(id);
-            string ImageFullPath = Path.Combine(environment.WebRootPath + "Produktet" + produkti.ImageFileName);
-
-            if (produkti == null)
-            {
-                return RedirectToAction("Index", "Produkt");
-
-            }
-
-             if (System.IO.File.Exists(ImageFullPath))
-            {
-                System.IO.File.Delete(ImageFullPath);
-            }
-
-            context.Remove(produkti);
-
-            await context.SaveChangesAsync();
-
-            return RedirectToAction("Index", "Produkt");
-
-        }
-
-        /// <summary>
-        /// Deletes a product from the database, including its associated image file on disk.
-        /// Intended for admin use only.
-        /// </summary>
-        /// <param name="id">The Id of the product to delete.</param>
-        /// <returns>
-        /// Redirects to the Index page whether the deletion succeeds or the product/id is invalid.
-        /// </returns>
-        [Authorize(Policy = "AdminEmail")]
-        [HttpPost("delete/{id}")]
-        public async Task<IActionResult> DeleteConfirmation(int? id)
-        {
-            if (id == null)
-            {
-                return RedirectToAction("Index");
-            }
-
-            var produkti = await context.Produktet.FindAsync(id);
-            if (produkti == null)
-            {
-                return RedirectToAction("Index");
-            }
-
-
-            string imageFullPath = Path.Combine(environment.WebRootPath, "Produktet", produkti.ImageFileName);
-            if (System.IO.File.Exists(imageFullPath))
-            {
-                System.IO.File.Delete(imageFullPath);
-            }
-            context.Produktet.Remove(produkti);
-            await context.SaveChangesAsync();
-
-            return RedirectToAction("Index");
-        }
-
-
-        /// <summary>
-        /// Displays the details of a single product, along with all of its comments (and the user who wrote each comment).
-        /// </summary>
-        /// <param name="id">The Id of the product to display. Nullable because the route might not provide one.</param>
-        /// <param name="koment">
-        /// A Koment (comment) object — likely bound from a comment submission form on this same page.
-        /// </param>
-        /// <returns>
-        /// The Details view, populated with the product and its comments.
-        /// Returns 404 Not Found if no product matches the given id.
-        /// </returns>
-        public async Task<IActionResult> Details(int? id, Koment koment)
-        {
-
-            var produkt = await context.Produktet
-       .Include(p => p.Koments)
-       .ThenInclude(k => k.User)
-       .FirstOrDefaultAsync(p => p.Id == id);
-
-
-            if (produkt == null)
-            {
-                return NotFound();
-            }
-            var viewModel = new ProduktDetailsVM()
-            {
-                Produkt = produkt,
-                Koments = produkt.Koments?.ToList() ?? new List<Koment>(),
-            };
-
-            return View(viewModel);
-        }
-        /// <summary>
-        /// Add a comment
-        /// </summary>
-        /// <param name="produktId">The id of the product that the comment will be added</param>
-        /// <param name="content"></param>
-        /// <returns>Returns comment added succefullu, returns to detail action</returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddComment(int produktId, string content)
-        {
-            if (!User.Identity.IsAuthenticated)
-            {
-                return Unauthorized();
-            }
-
-            if (string.IsNullOrEmpty(content))
-            {
-                ModelState.AddModelError("Content", "Comment cannot be empty.");
-                return RedirectToAction("Details", new { id = produktId });
-            }
-
-            // Get the logged-in user's ID
-            var userId = _userManager.GetUserId(User);
-            Console.WriteLine(userId);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-
-
-            var comment = new Koment
-            {
-                Content = content,
-                IdentityUserId = userId,
-                ProduktId = produktId
-            };
-
-            // Add the comment to the database
-            context.Comments.Add(comment);
-            await context.SaveChangesAsync();
-
-            // Redirect back to the details page for the product
-            return RedirectToAction("Details", new { id = produktId });
-        }
-        /// <summary>
-        /// Takes userId of the user, delets the comment of the user
-        /// </summary>
-        /// <param name="commentId">the id of the comment to be deleted</param>
-        /// <returns>If user is authenticated and user deletes his own comment returns comment deleted succesfully</returns>
-        public async Task<IActionResult> DeleteComment(int commentId)
-        {
-            var comment = await context.Comments
-                .FirstOrDefaultAsync(c => c.Id == commentId);
-
-            if (comment == null)
-            {
-                return NotFound("The comment does not exist.");
-            }
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (comment.IdentityUserId != userId)
-            {
-                return Unauthorized("You are not authorized to delete this comment.");
-            }
-
-            context.Comments.Remove(comment);
-            await context.SaveChangesAsync();
-
-            // Ensure ProduktId is not null before redirecting
-            if (comment.ProduktId == null)
-            {
-                // Handle the case where ProduktId is null, maybe redirect somewhere else
-                return RedirectToAction("Index", "Home"); // Or another page
-            }
-
-            return RedirectToAction("Details", "Produkt", new { id = comment.ProduktId });
-        }
-
-        /// <summary>
-        /// Shows all user in admin view
-        /// </summary>
-        /// <returns>Returns all users</returns>
-
-        public async Task<IActionResult> PrivateAdmin()
-        {
-            var AllUser = await context.Users.ToListAsync();
-
-            return View(AllUser);
-        }
-        /// <summary>
-        /// Deletes a user
-        /// </summary>
-        /// <param name="id">The id of the user to be deleted</param>
-        /// <returns>Returns to admin panel</returns>
-        [HttpGet]
-        public async Task<IActionResult> DeleteUser(string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return RedirectToAction("PrivateAdmin");
-            }
-            await _userManager.DeleteAsync(user);
-            return RedirectToAction("PrivateAdmin");
-        }
-        /// <summary>
-        /// Export all product into .xls file
-        /// </summary>
-        /// <returns>Returns an excel file</returns>
-        public async Task<IActionResult> ExportToExcel()
-        {
-            
-
-
-
-            var produktet = await context.Produktet.ToListAsync();
-
-            using (var package = new ExcelPackage())
-            {
-                var worksheet = package.Workbook.Worksheets.Add("Produktet");
-
-                worksheet.Cells[1, 1].Value = "Id";
-                worksheet.Cells[1, 2].Value = "Name";
-                worksheet.Cells[1, 3].Value = "Brand";
-                worksheet.Cells[1, 4].Value = "Description";
-                worksheet.Cells[1, 5].Value = "Ram";
-                worksheet.Cells[1, 6].Value = "Price";
-                worksheet.Cells[1, 7].Value = "Date";
-                worksheet.Cells[1, 8].Value = "Storage";
-                worksheet.Cells[1, 9].Value = "Storage Type";
-                worksheet.Cells[1, 10].Value = "Screen Inch";
-                worksheet.Cells[1, 11].Value = "Procesor";
-                worksheet.Cells[1, 12].Value = "Category";
-                worksheet.Cells[1, 13].Value = "Image File Name";
-
-                int row = 2;
-
-                foreach (var produkt in produktet)
-                {
-                    worksheet.Cells[row, 1].Value = produkt.Id;
-                    worksheet.Cells[row, 2].Value = produkt.Name;
-                    worksheet.Cells[row, 3].Value = produkt.Brand;
-                    worksheet.Cells[row, 5].Value = produkt.Ram;
-                    worksheet.Cells[row, 6].Value = produkt.Price;
-                    worksheet.Cells[row, 7].Value = produkt.Date.ToString("yyyy-MM-dd");
-                    worksheet.Cells[row, 8].Value = produkt.Storage;
-                    worksheet.Cells[row, 9].Value = produkt.Storagetype;
-                    worksheet.Cells[row, 10].Value = produkt.ScreenInch;
-                    worksheet.Cells[row, 11].Value = produkt.Procesor;
-                    worksheet.Cells[row, 12].Value = produkt.Category;
-                    worksheet.Cells[row, 13].Value = produkt.ImageFileName;
-                    row++;
-                }
-                 worksheet.Cells.AutoFitColumns();
-                 
-                var stream = new MemoryStream();    
-                package.SaveAs(stream);
-                stream.Position = 0;
-                
-                string excelName = $"Produktet_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}.xlsx";
-
-                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
-
-            }
-        }
+        _produktService = produktService;
     }
+
+    public async Task<IActionResult> Index(string? searchString, string? brand, string? selectedCategory)
+    {
+        var result = await _produktService.GetProductsAsync(searchString, brand, selectedCategory);
+
+        var viewModel = new ProductVM
+        {
+            Products = result.Products,
+            SearchString = searchString,
+            SelectedBrand = brand,
+            AvailableBrands = result.AvailableBrands,
+            SelectedCategory = selectedCategory,
+            AvailableCategories = result.AvailableCategories
+        };
+
+        return View(viewModel);
+    }
+
+    [Authorize(Policy = "AdminEmail")]
+    public async Task<IActionResult> Menaxhment(string? searchBar)
+    {
+        var result = await _produktService.GetProductsAsync(searchBar, null, null);
+        return View(result.Products);
+    }
+
+    [Authorize(Policy = "AdminEmail")]
+    [HttpGet]
+    public IActionResult Create() => View();
+
+    [Authorize(Policy = "AdminEmail")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(ProduktDto dto)
+    {
+        if (!ModelState.IsValid)
+            return View(dto);
+
+        await using var stream = dto.ImageFile?.OpenReadStream();
+        await _produktService.CreateAsync(ToInput(dto), stream, dto.ImageFile?.FileName);
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [Authorize(Policy = "AdminEmail")]
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var produkt = await _produktService.GetByIdAsync(id);
+        if (produkt == null)
+            return RedirectToAction(nameof(Index));
+
+        var dto = new ProduktDto
+        {
+            Id = produkt.Id,
+            Name = produkt.Name,
+            Brand = produkt.Brand,
+            Ram = produkt.Ram,
+            Description = produkt.Description,
+            Date = produkt.Date,
+            Price = produkt.Price,
+            Storage = produkt.Storage,
+            Procesor = produkt.Procesor,
+            ScreenInch = produkt.ScreenInch,
+            Storagetype = produkt.Storagetype,
+            Category = produkt.Category
+        };
+
+        ViewData["ImageFileName"] = produkt.ImageFileName;
+        ViewData["Produkt.Id"] = produkt.Id;
+        return View(dto);
+    }
+
+    [Authorize(Policy = "AdminEmail")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, ProduktDto dto)
+    {
+        if (!ModelState.IsValid)
+            return View(dto);
+
+        await using var stream = dto.ImageFile?.OpenReadStream();
+        var updated = await _produktService.UpdateAsync(id, ToInput(dto), stream, dto.ImageFile?.FileName);
+
+        if (!updated)
+            return NotFound();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [Authorize(Policy = "AdminEmail")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _produktService.DeleteAsync(id);
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null)
+            return NotFound();
+
+        var produkt = await _produktService.GetDetailsAsync(id.Value);
+        if (produkt == null)
+            return NotFound();
+
+        var viewModel = new ProduktDetailsVM
+        {
+            Produkt = produkt,
+            Koments = produkt.Koments.ToList()
+        };
+
+        return View(viewModel);
+    }
+
+    [Authorize(Policy = "AdminEmail")]
+    public async Task<IActionResult> ExportToExcel()
+    {
+        var (content, fileName) = await _produktService.ExportAsync();
+        return File(content,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            fileName);
+    }
+
+    private static ProduktInput ToInput(ProduktDto dto) => new()
+    {
+        Name = dto.Name,
+        Brand = dto.Brand,
+        Description = dto.Description,
+        Ram = dto.Ram,
+        Price = dto.Price,
+        Date = dto.Date,
+        Storage = dto.Storage,
+        Storagetype = dto.Storagetype,
+        ScreenInch = dto.ScreenInch,
+        Procesor = dto.Procesor,
+        Category = dto.Category
+    };
 }
-
- 
-
