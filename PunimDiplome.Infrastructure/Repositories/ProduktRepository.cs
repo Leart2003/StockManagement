@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PunimDiplome.Application.Interfaces;
 using PunimDiplome.Domain.Entities;
+using PunimDiplome.Infrastructure.Data;
 
 namespace PunimDiplome.Infrastructure.Repositories;
 

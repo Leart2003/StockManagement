@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Punim_Diplome.Data.Services;
+using PunimDiplome.Infrastructure.Data;
 using System.Security.Claims;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using PunimDiplome.Domain.Entities;
