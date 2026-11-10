@@ -1,6 +1,6 @@
-﻿@model IEnumerable<PunimDiplome.Domain.Entities.OrderProduct>
+@model IEnumerable<PunimDiplome.Domain.Entities.OrderProduct>
 
-<h2>Porositë e juaja</h2>
+<h2>PorositÃ« e juaja</h2>
 
 
 <table class="table">
@@ -9,9 +9,9 @@
         <tr>
             
             <th>Name</th>
-            <th>Çmimi</th>
+            <th>Ã‡mimi</th>
             <th>Image</th>
-            <th>Data e porosisë</th>
+            <th>Data e porosisÃ«</th>
             <th>Gjendja e porosis</th>
             
         </tr>
@@ -44,7 +44,7 @@
 
 
 
-                <td style="white-space: nowrap;">
+                <td class="text-nowrap">
                     <div class="d-flex flex-wrap gap-2">
 
                         <form asp-action="CancelOrder" asp-controller="Order" asp-route-id="@item.Id" method="post" class="m-0">

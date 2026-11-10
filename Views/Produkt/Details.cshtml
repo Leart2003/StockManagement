@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @model PunimDiplome.Domain.Entities.ProduktDetailsVM
 @inject UserManager<IdentityUser> userManager
 
@@ -6,201 +6,9 @@
     ViewData["Title"] = "Product Details";
 }
 
-<style>
-    .details-hero {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        color: white;
-        padding: 2rem 0;
-        margin-bottom: 3rem;
-    }
-
-    .breadcrumb {
-        background-color: transparent;
-        padding: 0;
-    }
-
-    .breadcrumb-item.active {
-        color: #f8f9fa;
-    }
-
-    .breadcrumb a {
-        color: #3498db;
-    }
-
-    .product-image-container {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .product-image {
-        max-height: 500px;
-        object-fit: cover;
-        border-radius: 8px;
-        width: 100%;
-    }
-
-    .specs-card {
-        background: white;
-        border-radius: 10px;
-        padding: 2rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        margin-bottom: 2rem;
-    }
-
-    .spec-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #e0e0e0;
-    }
-
-    .spec-item:last-child {
-        border-bottom: none;
-    }
-
-    .spec-label {
-        color: #7f8c8d;
-        font-weight: 500;
-    }
-
-    .spec-value {
-        color: #2c3e50;
-        font-weight: 600;
-    }
-
-    .price-section {
-        background: white;
-        border-radius: 10px;
-        padding: 2rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        margin-bottom: 2rem;
-    }
-
-    .price-display {
-        font-size: 2.5rem;
-        color: #e74c3c;
-        font-weight: 700;
-        margin-bottom: 1rem;
-    }
-
-    .rating {
-        color: #f39c12;
-        margin-bottom: 1rem;
-    }
-
-    .description-section {
-        background: white;
-        border-radius: 10px;
-        padding: 2rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        margin-bottom: 2rem;
-        line-height: 1.8;
-    }
-
-    .description-section h5 {
-        color: #2c3e50;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .features-list {
-        list-style: none;
-        padding: 0;
-    }
-
-    .features-list li {
-        padding: 0.75rem 0;
-        color: #2c3e50;
-        border-bottom: 1px solid #e0e0e0;
-    }
-
-    .features-list li:before {
-        content: "✓ ";
-        color: #27ae60;
-        font-weight: bold;
-        margin-right: 0.5rem;
-    }
-
-    .features-list li:last-child {
-        border-bottom: none;
-    }
-
-    .comments-section {
-        background: white;
-        border-radius: 10px;
-        padding: 2rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        margin-top: 3rem;
-    }
-
-    .comments-section h4 {
-        color: #2c3e50;
-        font-weight: 600;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #3498db;
-    }
-
-    .comment {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        border-left: 4px solid #3498db;
-    }
-
-    .comment-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
-    }
-
-    .comment-author {
-        color: #2c3e50;
-        font-weight: 600;
-    }
-
-    .comment-content {
-        color: #555;
-        line-height: 1.6;
-    }
-
-    .comment-form {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 2rem;
-        margin-top: 2rem;
-    }
-
-    .comment-form textarea {
-        border-radius: 8px;
-        border: 1px solid #e0e0e0;
-    }
-
-    .auth-required-message {
-        background-color: #ecf0f1;
-        border-left: 4px solid #3498db;
-        padding: 1.5rem;
-        border-radius: 8px;
-        color: #2c3e50;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 1rem;
-        margin-top: 2rem;
-    }
-
-    .btn-order {
-        flex: 1;
-        padding: 1rem;
-        font-weight: 600;
-        border-radius: 8px;
-    }
-</style>
+@section Styles {
+    <link rel="stylesheet" href="~/css/product-details.css" asp-append-version="true" />
+}
 
 <!-- Details Hero -->
 <section class="details-hero">
@@ -313,7 +121,7 @@
                             </span>
                             @if (User.Identity.IsAuthenticated && koment.IdentityUserId == userManager.GetUserId(User))
                             {
-                                <form method="post" asp-controller="Produkt" asp-action="DeleteComment" class="m-0" style="display: inline;">
+                                <form method="post" asp-controller="Produkt" asp-action="DeleteComment" class="m-0 d-inline">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="commentId" value="@koment.Id" />
                                     <button type="submit" class="btn btn-sm btn-outline-danger">

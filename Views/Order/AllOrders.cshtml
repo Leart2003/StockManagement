@@ -36,7 +36,7 @@
                 </td>
 
                 <td>
-    <form asp-action="UpdateStatus" method="post" style="display:flex; gap: 5px;">
+    <form asp-action="UpdateStatus" method="post" class="d-flex gap-1">
     @Html.AntiForgeryToken()
     <input type="hidden" name="id" value="@item.Id" />
                         <select name="status" class="form-control">

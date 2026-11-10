@@ -22,7 +22,7 @@
             </form>
         </div>
         <div class="col-lg-5 d-none d-lg-flex justify-content-center" aria-hidden="true">
-            <i class="bi bi-laptop text-info" style="font-size: 9rem;"></i>
+            <i class="bi bi-laptop text-info home-hero-icon"></i>
         </div>
     </div>
 </section>
@@ -53,14 +53,14 @@
         {
             <div class="col">
                 <article class="card h-100 shadow-sm border-0">
-                    <a asp-controller="Produkt" asp-action="Details" asp-route-id="@product.Id" class="bg-body-tertiary d-flex align-items-center justify-content-center p-3" style="height: 210px;">
+                    <a asp-controller="Produkt" asp-action="Details" asp-route-id="@product.Id" class="bg-body-tertiary d-flex align-items-center justify-content-center p-3 home-product-image">
                         @if (!string.IsNullOrWhiteSpace(product.ImageFileName))
                         {
-                            <img src="~/Produktet/@product.ImageFileName" alt="@product.Name" class="img-fluid h-100" style="object-fit: contain;" loading="lazy" />
+                            <img src="~/Produktet/@product.ImageFileName" alt="@product.Name" class="img-fluid h-100 home-product-image-fit" loading="lazy" />
                         }
                         else
                         {
-                            <i class="bi bi-laptop text-secondary" style="font-size: 4rem;" aria-hidden="true"></i>
+                            <i class="bi bi-laptop text-secondary home-empty-image-icon" aria-hidden="true"></i>
                             <span class="visually-hidden">Imazh i padisponueshëm</span>
                         }
                     </a>
