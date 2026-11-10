@@ -62,8 +62,7 @@
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
 *.cs linguist-detectable=true
-*.cshtml linguist-detectable=true
+*.cshtml linguist-language=C#
 *.html linguist-detectable=false
 *.css linguist-detectable=false
 *.js linguist-detectable=false
-*.cs linguist-language="ASP.NET Core"
