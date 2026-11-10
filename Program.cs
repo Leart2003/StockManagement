@@ -31,6 +31,9 @@ namespace Punim_Diplome
             builder.Services.AddScoped<IProduktService, ProduktService>();
             builder.Services.AddScoped<IImageStorage, LocalImageStorage>();
             builder.Services.AddScoped<IProduktExporter, EpplusProduktExporter>();
+            builder.Services.AddScoped<IKomentRepository, KomentRepository>();
+            builder.Services.AddScoped<IKomentService, KomentService>();
+            builder.Services.AddScoped<IUserAdminService, UserAdminService>();
 
 
 
