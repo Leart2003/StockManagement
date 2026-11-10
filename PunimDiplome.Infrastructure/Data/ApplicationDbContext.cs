@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Punim_Diplome.Models;
+using PunimDiplome.Domain.Entities;
 
 
 public class ApplicationDbContext : IdentityDbContext<IdentityUser>
