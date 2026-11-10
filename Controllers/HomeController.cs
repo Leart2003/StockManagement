@@ -1,7 +1,7 @@
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Punim_Diplome.Models;
+using PunimDiplome.Domain.Entities;
 using System.Diagnostics;
 
 namespace Punim_Diplome.Controllers

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿		<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -37,9 +37,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\PunimDiplome.Application\PunimDiplome.Application.csproj" />
-	  <ProjectReference Include="..\PunimDiplome.Domain\PunimDiplome.Domain.csproj" />
-	  <ProjectReference Include="..\PunimDiplome.Infrastructure\PunimDiplome.Infrastructure.csproj" />
+	  <ProjectReference Include="PunimDiplome.Application\PunimDiplome.Application.csproj" />
+	  <ProjectReference Include="PunimDiplome.Domain\PunimDiplome.Domain.csproj" />
+	  <ProjectReference Include="PunimDiplome.Infrastructure\PunimDiplome.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

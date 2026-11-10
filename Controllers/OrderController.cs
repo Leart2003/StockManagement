@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Punim_Diplome.Models;
 using Punim_Diplome.Data.Services;
 using System.Security.Claims;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using PunimDiplome.Domain.Entities;
 
 namespace Punim_Diplome.Controllers
 {
