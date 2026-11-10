@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace PunimDiplome.Domain.Entities
 {
  
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-
     public class ProduktDto
     {
         public int Id { get; set; } 
