@@ -1,4 +1,5 @@
-﻿namespace PunimDiplome.Domain.Entities
+﻿using Microsoft.AspNetCore.Http;
+namespace PunimDiplome.Domain.Entities
 {
  
     using System.ComponentModel.DataAnnotations;
@@ -6,10 +7,7 @@
 
     public class ProduktDto
     {
-        // Common for all operations (Read
-        //
-        // Update, Delete)
-        public int Id { get; set; } // Required for Update/Delete but ignored for Create
+        public int Id { get; set; } 
 
        
         [Required(ErrorMessage = "Name is required.")]

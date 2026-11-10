@@ -7,8 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.3.14" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PunimDiplome.Application\PunimDiplome.Application.csproj" />
     <ProjectReference Include="..\PunimDiplome.Domain\PunimDiplome.Domain.csproj" />
   </ItemGroup>
+	<ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+</ItemGroup>
 
 </Project>
