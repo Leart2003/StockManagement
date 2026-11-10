@@ -1,71 +1,39 @@
-using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Punim_Diplome.Application.Interfaces;
+using Punim_Diplome.Models;
+using PunimDiplome.Application.Interfaces;
 using PunimDiplome.Domain.Entities;
 using System.Diagnostics;
 
-namespace Punim_Diplome.Controllers
+namespace Punim_Diplome.Controllers;
+
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly IProduktService _produktService;
+
+    public HomeController(IProduktService produktService)
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext context;
+        _produktService = produktService;
+    }
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+    public async Task<IActionResult> Index(string? searchString, string? brand)
+    {
+        var result = await _produktService.GetProductsAsync(searchString, brand, null);
+
+        var viewModel = new ProductVM
         {
-            _logger = logger;
-            this.context = context;
-        }
-        /// <summary>
-        /// Displays the list of products, optionally filtered by brand and/or a search term.
-        /// </summary>
-        /// <param name="searchString">
-        /// Text typed by the user to search for in the product name. Optional — if null or empty, no name filter is applied.
-        /// </param>
-        /// <param name="brand">
-        /// The brand selected by the user to filter by. Optional — if null or empty, products from all brands are shown.
-        /// </param>
-        /// <returns>
-        /// The Index view, populated with the filtered product list, the selected filters,
-        /// and the list of available brands (for the filter dropdown).
-        /// </returns>
-        public async Task<IActionResult> IndexAsync(String searchString, String brand)
-        {
-            var produktetquery = context.Produktet.OrderByDescending(p => p.Id).ToList();
+            Products = result.Products,
+            SearchString = searchString,
+            SelectedBrand = brand,
+            AvailableBrands = result.AvailableBrands
+        };
 
-            if (!string.IsNullOrEmpty(brand))
-            {
-                produktetquery = produktetquery.Where(p => p.Brand == brand).ToList();
-            }
+        return View(viewModel);
+    }
 
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                produktetquery = produktetquery.Where(p => p.Name!.ToUpper().Contains(searchString.ToUpper())).ToList();
-            }
-            var availableBrands = await context.Produktet
-            .Select(p => p.Brand)
-            .Distinct()
-            .ToListAsync();
-
-
-            var viewModel = new ProductVM()
-            {
-                Products = produktetquery.ToList(),
-                SearchString = searchString,
-                SelectedBrand = brand,
-                AvailableBrands = availableBrands
-            };
-
-
-            return View(viewModel);
-        }
-
-      
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }
