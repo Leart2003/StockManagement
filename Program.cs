@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using Punim_Diplome.Data;
-using Punim_Diplome.Data.Services;
+using PunimDiplome.Application.Interfaces;
+using PunimDiplome.Application.Services;        
+using PunimDiplome.Infrastructure.Repositories;
+using PunimDiplome.Infrastructure.Services;
 using System.Security.Claims;
 
 namespace Punim_Diplome
@@ -25,9 +27,11 @@ namespace Punim_Diplome
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
-            builder.Services.AddScoped<IKomentService, KomentService>();
+            builder.Services.AddScoped<IProduktRepository, ProduktRepository>();
             builder.Services.AddScoped<IProduktService, ProduktService>();
-   
+            builder.Services.AddScoped<IImageStorage, LocalImageStorage>();
+            builder.Services.AddScoped<IProduktExporter, EpplusProduktExporter>();
+
 
 
             //Injektimi i servisit per admin permision

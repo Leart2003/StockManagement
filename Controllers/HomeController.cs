@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Punim_Diplome.Application.Interfaces;
-using Punim_Diplome.Models;
+
 using PunimDiplome.Application.Interfaces;
 using PunimDiplome.Domain.Entities;
 using System.Diagnostics;
