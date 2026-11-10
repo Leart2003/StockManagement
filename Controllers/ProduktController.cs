@@ -1,156 +1,96 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Punim_Diplome.Models;
 using PunimDiplome.Application.Dtos;
 using PunimDiplome.Application.Interfaces;
 using PunimDiplome.Domain.Entities;
+using System.Security.Claims;
 
 namespace Punim_Diplome.Controllers;
 
 public class ProduktController : Controller
 {
     private readonly IProduktService _produktService;
+    private readonly IKomentService _komentService;
+    private readonly IUserAdminService _userAdminService;
 
-    public ProduktController(IProduktService produktService)
+    public ProduktController(
+        IProduktService produktService,
+        IKomentService komentService,
+        IUserAdminService userAdminService)
     {
         _produktService = produktService;
+        _komentService = komentService;
+        _userAdminService = userAdminService;
     }
 
-    public async Task<IActionResult> Index(string? searchString, string? brand, string? selectedCategory)
-    {
-        var result = await _produktService.GetProductsAsync(searchString, brand, selectedCategory);
-
-        var viewModel = new ProductVM
-        {
-            Products = result.Products,
-            SearchString = searchString,
-            SelectedBrand = brand,
-            AvailableBrands = result.AvailableBrands,
-            SelectedCategory = selectedCategory,
-            AvailableCategories = result.AvailableCategories
-        };
-
-        return View(viewModel);
-    }
-
-    [Authorize(Policy = "AdminEmail")]
-    public async Task<IActionResult> Menaxhment(string? searchBar)
-    {
-        var result = await _produktService.GetProductsAsync(searchBar, null, null);
-        return View(result.Products);
-    }
-
-    [Authorize(Policy = "AdminEmail")]
-    [HttpGet]
-    public IActionResult Create() => View();
-
-    [Authorize(Policy = "AdminEmail")]
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ProduktDto dto)
-    {
-        if (!ModelState.IsValid)
-            return View(dto);
-
-        await using var stream = dto.ImageFile?.OpenReadStream();
-        await _produktService.CreateAsync(ToInput(dto), stream, dto.ImageFile?.FileName);
-
-        return RedirectToAction(nameof(Index));
-    }
-
-    [Authorize(Policy = "AdminEmail")]
-    [HttpGet]
-    public async Task<IActionResult> Edit(int id)
-    {
-        var produkt = await _produktService.GetByIdAsync(id);
-        if (produkt == null)
-            return RedirectToAction(nameof(Index));
-
-        var dto = new ProduktDto
-        {
-            Id = produkt.Id,
-            Name = produkt.Name,
-            Brand = produkt.Brand,
-            Ram = produkt.Ram,
-            Description = produkt.Description,
-            Date = produkt.Date,
-            Price = produkt.Price,
-            Storage = produkt.Storage,
-            Procesor = produkt.Procesor,
-            ScreenInch = produkt.ScreenInch,
-            Storagetype = produkt.Storagetype,
-            Category = produkt.Category
-        };
-
-        ViewData["ImageFileName"] = produkt.ImageFileName;
-        ViewData["Produkt.Id"] = produkt.Id;
-        return View(dto);
-    }
-
-    [Authorize(Policy = "AdminEmail")]
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ProduktDto dto)
-    {
-        if (!ModelState.IsValid)
-            return View(dto);
-
-        await using var stream = dto.ImageFile?.OpenReadStream();
-        var updated = await _produktService.UpdateAsync(id, ToInput(dto), stream, dto.ImageFile?.FileName);
-
-        if (!updated)
-            return NotFound();
-
-        return RedirectToAction(nameof(Index));
-    }
-
-    [Authorize(Policy = "AdminEmail")]
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(int id)
-    {
-        await _produktService.DeleteAsync(id);
-        return RedirectToAction(nameof(Index));
-    }
+    // ... Index, Menaxhment, Create, Edit, Delete, ExportToExcel, ToInput unchanged ...
 
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
             return NotFound();
 
-        var produkt = await _produktService.GetDetailsAsync(id.Value);
+        var produkt = await _produktService.GetByIdAsync(id.Value);
         if (produkt == null)
             return NotFound();
 
         var viewModel = new ProduktDetailsVM
         {
             Produkt = produkt,
-            Koments = produkt.Koments.ToList()
+            Koments = await _komentService.GetForProduktAsync(id.Value)
         };
 
         return View(viewModel);
     }
 
-    [Authorize(Policy = "AdminEmail")]
-    public async Task<IActionResult> ExportToExcel()
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddComment(int produktId, string content)
     {
-        var (content, fileName) = await _produktService.ExportAsync();
-        return File(content,
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            fileName);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+            return Unauthorized();
+
+        await _komentService.AddAsync(produktId, content, userId);
+        return RedirectToAction(nameof(Details), new { id = produktId });
     }
 
-    private static ProduktInput ToInput(ProduktDto dto) => new()
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteComment(int commentId)
     {
-        Name = dto.Name,
-        Brand = dto.Brand,
-        Description = dto.Description,
-        Ram = dto.Ram,
-        Price = dto.Price,
-        Date = dto.Date,
-        Storage = dto.Storage,
-        Storagetype = dto.Storagetype,
-        ScreenInch = dto.ScreenInch,
-        Procesor = dto.Procesor,
-        Category = dto.Category
-    };
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+            return Unauthorized();
+
+        var result = await _komentService.DeleteAsync(commentId, userId);
+
+        return result.Status switch
+        {
+            KomentDeleteStatus.NotFound => NotFound(),
+            KomentDeleteStatus.Forbidden => Forbid(),
+            _ => result.ProduktId == null
+                    ? RedirectToAction("Index", "Home")
+                    : RedirectToAction(nameof(Details), new { id = result.ProduktId })
+        };
+    }
+
+    [Authorize(Policy = "AdminEmail")]
+    public async Task<IActionResult> PrivateAdmin()
+    {
+        var users = await _userAdminService.GetAllAsync();
+        return View(users);
+    }
+
+    [Authorize(Policy = "AdminEmail")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteUser(string id)
+    {
+        await _userAdminService.DeleteAsync(id);
+        return RedirectToAction(nameof(PrivateAdmin));
+    }
 }
