@@ -1,5 +1,95 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model PunimDiplome.Domain.Entities.ProductVM
 @{
+    ViewData["Title"] = "Laptopet";
+    var products = Model.Products?.ToList() ?? new List<PunimDiplome.Domain.Entities.Produkt>();
+    var brands = Model.AvailableBrands ?? Enumerable.Empty<string>();
+}
+
+<section class="bg-dark text-white rounded-4 p-4 p-md-5 mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+            <span class="badge text-bg-info mb-3">Dyqani i laptopëve</span>
+            <h1 class="display-5 fw-bold">Gjej laptopin e duhur për ty.</h1>
+            <p class="lead text-white-50 mb-4">Eksploro modelet tona dhe zgjidh pajisjen që i përshtatet punës, studimeve dhe buxhetit tënd.</p>
+            <form asp-controller="Home" asp-action="Index" method="get" class="row g-2">
+                <div class="col-sm">
+                    <label class="visually-hidden" for="searchString">Kërko laptop</label>
+                    <input id="searchString" class="form-control form-control-lg" type="search" name="searchString" value="@Model.SearchString" placeholder="Kërko sipas emrit ose markës" />
+                </div>
+                <div class="col-sm-auto">
+                    <button class="btn btn-info btn-lg w-100" type="submit"><i class="bi bi-search me-2" aria-hidden="true"></i>Kërko</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-5 d-none d-lg-flex justify-content-center" aria-hidden="true">
+            <i class="bi bi-laptop text-info" style="font-size: 9rem;"></i>
+        </div>
+    </div>
+</section>
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+    <div>
+        <h2 class="h3 fw-bold mb-1">Laptopët tanë</h2>
+        <p class="text-body-secondary mb-0">@products.Count() produkte</p>
+    </div>
+    <form asp-controller="Home" asp-action="Index" method="get" class="d-flex align-items-center gap-2">
+        <input type="hidden" name="searchString" value="@Model.SearchString" />
+        <label class="form-label mb-0" for="brand">Marka</label>
+        <select class="form-select" id="brand" name="brand" onchange="this.form.submit()">
+            <option value="">Të gjitha markat</option>
+            @foreach (var brand in brands)
+            {
+                <option value="@brand" selected="@(Model.SelectedBrand == brand ? "selected" : null)">@brand</option>
+            }
+        </select>
+        <noscript><button class="btn btn-outline-primary" type="submit">Filtro</button></noscript>
+    </form>
+</div>
+
+@if (products.Count > 0)
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-5">
+        @foreach (var product in products)
+        {
+            <div class="col">
+                <article class="card h-100 shadow-sm border-0">
+                    <a asp-controller="Produkt" asp-action="Details" asp-route-id="@product.Id" class="bg-body-tertiary d-flex align-items-center justify-content-center p-3" style="height: 210px;">
+                        @if (!string.IsNullOrWhiteSpace(product.ImageFileName))
+                        {
+                            <img src="~/Produktet/@product.ImageFileName" alt="@product.Name" class="img-fluid h-100" style="object-fit: contain;" loading="lazy" />
+                        }
+                        else
+                        {
+                            <i class="bi bi-laptop text-secondary" style="font-size: 4rem;" aria-hidden="true"></i>
+                            <span class="visually-hidden">Imazh i padisponueshëm</span>
+                        }
+                    </a>
+                    <div class="card-body d-flex flex-column">
+                        <div class="small text-uppercase text-body-secondary fw-semibold">@product.Brand</div>
+                        <h3 class="h5 card-title mt-1">@product.Name</h3>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge text-bg-light border">@product.Ram GB RAM</span>
+                            @if (!string.IsNullOrWhiteSpace(product.Category))
+                            {
+                                <span class="badge text-bg-light border">@product.Category</span>
+                            }
+                        </div>
+                        <div class="mt-auto d-flex align-items-center justify-content-between gap-2">
+                            <span class="fs-5 fw-bold">@product.Price.ToString("C")</span>
+                            <a class="btn btn-primary" asp-controller="Produkt" asp-action="Details" asp-route-id="@product.Id">Shiko <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-light border text-center py-5 mb-5" role="status">
+        <i class="bi bi-search fs-1 text-secondary" aria-hidden="true"></i>
+        <h3 class="h5 mt-3">Nuk u gjet asnjë laptop</h3>
+        <p class="text-body-secondary mb-3">Provo një kërkim tjetër ose hiq filtrin e markës.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">Pastro filtrat</a>
+    </div>
 }
